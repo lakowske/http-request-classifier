@@ -1,0 +1,35 @@
+#cracker {
+    background-color:red;    
+}
+
+#ancillary {
+    background-color:lime;
+}
+
+#primaryReq {
+    background-color:green;
+}
+
+.category {
+    height:50px;
+    width:960px;
+    margin:auto;
+    text-align:center;
+}
+
+.sample {
+    margin:auto;
+    background-color:grey;
+    width:960px;
+    text-align:center;
+}
+
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
