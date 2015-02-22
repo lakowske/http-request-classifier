@@ -2,10 +2,22 @@
  * (C) 2015 Seth Lakowske
  */
 
-var http = require('http');
+var http       = require('http');
 var JSONStream = require('JSONStream');
+var through2    = require('through2');
 
 var sample = document.querySelector('#req');
+
+var cont   = null;
+var input  = null;
+function queue(thr, request, fn) {
+    thr.push(request);
+    fn();
+}
+
+function dragleave(e, element) {
+    element.classList.remove("dropover");
+}
 
 function getRequests(host, port) {
     var options = {
@@ -16,44 +28,108 @@ function getRequests(host, port) {
     }
 
     var parseify = JSONStream.parse();
+    var pauseify = through2(function(dbrequest, enc, fn) {
+        var self    = this;
+        cont = function() {
+            console.log('next request');
+            queue(self, dbrequest, fn);
+        }
+    })
 
     var req = http.request(options, function(res) {
-        res.pipe(parseify);
+        res.pipe(pauseify).pipe(parseify);
         parseify.on('data', function(dbrequest) {
-            sample.innerHtml = dbrequest.value;
+            input = dbrequest;
+            //use trumpet template
+            sample.innerHTML = dbrequest.value;
         })
-        res.on('data', function(dbrequest) {
-            sample.innerHtml = dbrequest.toString();
-        })
-
 
     })
-    req.end();
+    req.on('error', function(err) {
+        console.log(err);
+    })
+    req.on('data', function(data) {
+        console.log('hi ' + data);
+    })
+
+    return req;
+
 }
 
+var req = getRequests('localhost', 3333)
+req.write('hi');
+req.end();
+
+
+/*
+function putRequests(host, port) {
+    var options = {
+        host : host,
+        port : port,
+        path : '/requests',
+        method : 'POST',
+        withCredentials : false
+    }
+
+    var req = http.request(options, function(res) {
+    })
+
+
+}
+*/
 var samples = document.querySelectorAll('.sample');
 
 for (var i = 0 ; i < samples.length ; i++) {
     var el = samples[i];
     el.setAttribute('draggable', 'true');
     el.addEventListener('dragstart', function(e) {
-        //e.srcElement.classList.add("dragging");
-        e.dataTransfer.setData('text/plain', 'this may be dragged');
+        console.log(sample);
+        e.dataTransfer.setData('text/plain', sample.innerHTML);
+        e.dataTransfer.effectAllowed = "copy";
     });
 }
 
 var categories = document.querySelectorAll('.category');
 for (var i = 0 ; i < categories.length ; i++) {
     var el = categories[i];
+
     el.addEventListener('dragover', function(e) {
+        e.preventDefault();
         if (e.toElement) e.toElement.classList.add("dropover");
         if (e.target) e.target.classList.add("dropover");
     })
 
+    el.addEventListener('dragenter', function(e) {
+        e.preventDefault();
+    })
+
     el.addEventListener('dragleave', function(e) {
-        if (e.toElement) e.toElement.classList.remove("dropover");
-        if (e.target) e.target.classList.remove("dropover");
+        if (e.toElement) dragleave(e, e.toElement);
+        if (e.target) dragleave(e, e.target);
+    })
+
+    el.addEventListener('drop', function(e) {
+        e.preventDefault();
+        console.log(e.target);
+        console.log(e.dataTransfer.getData('text/plain'));
+        try {
+            var obj = JSON.parse(sample.innerHTML);
+        } catch (err) {
+            console.log('error making a JSON object');
+        }
+        if (obj) {
+            console.log(el);
+            obj['clazz'] = e.target.innerHTML;
+            var time = new Date().getTime();
+            //Write it back to the server
+            req.write({
+                type:'put',
+                key:time,
+                value:JSON.stringify(obj)
+            });
+
+            console.log(obj);
+        }
+        if (cont) cont()
     })
 }
-
-getRequests('localhost', 3333);
