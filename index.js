@@ -57,26 +57,42 @@ function getRequests(host, port) {
 }
 
 var req = getRequests('localhost', 3333)
-req.write('hi');
 req.end();
 
 
-/*
+
 function putRequests(host, port) {
     var options = {
         host : host,
         port : port,
-        path : '/requests',
+        path : '/requests/classified',
         method : 'POST',
         withCredentials : false
     }
 
     var req = http.request(options, function(res) {
+        if (res.statusCode === 200) {
+            console.log('sall good man');
+        }
     })
 
-
+    return req;
 }
-*/
+
+function send(request) {
+    var time = new Date().getTime();
+    var req  = putRequests('localhost', 3333);
+
+    //Write it back to the server
+    req.write(JSON.stringify({
+        type:'put',
+        key:time,
+        value:JSON.stringify(request)
+    }));
+
+    req.end();
+}
+
 var samples = document.querySelectorAll('.sample');
 
 for (var i = 0 ; i < samples.length ; i++) {
@@ -113,22 +129,14 @@ for (var i = 0 ; i < categories.length ; i++) {
         console.log(e.target);
         console.log(e.dataTransfer.getData('text/plain'));
         try {
-            var obj = JSON.parse(sample.innerHTML);
+            var request = JSON.parse(sample.innerHTML);
         } catch (err) {
             console.log('error making a JSON object');
         }
-        if (obj) {
+        if (request) {
             console.log(el);
-            obj['clazz'] = e.target.innerHTML;
-            var time = new Date().getTime();
-            //Write it back to the server
-            req.write({
-                type:'put',
-                key:time,
-                value:JSON.stringify(obj)
-            });
-
-            console.log(obj);
+            request['clazz'] = e.target.innerHTML;
+            send(request);
         }
         if (cont) cont()
     })
