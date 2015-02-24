@@ -24,6 +24,7 @@ function getRequests(host, port) {
         host : host,
         port : port,
         path : '/requests',
+        method : 'GET',
         withCredentials : false
     }
 
@@ -65,8 +66,8 @@ function putRequests(host, port) {
     var options = {
         host : host,
         port : port,
-        path : '/requests/classified',
-        method : 'POST',
+        path : '/requests',
+        method : 'PUT',
         withCredentials : false
     }
 
