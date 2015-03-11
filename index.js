@@ -4,7 +4,6 @@
 
 var http = require('http');
 var JSONStream = require('JSONStream');
-
 var sample = document.querySelector('#req');
 
 function getRequests(host, port) {
@@ -20,6 +19,7 @@ function getRequests(host, port) {
     var req = http.request(options, function(res) {
         res.pipe(parseify);
         parseify.on('data', function(dbrequest) {
+            console.dir(dbrequest);
             sample.innerHtml = dbrequest.value;
         })
         res.on('data', function(dbrequest) {
@@ -28,6 +28,9 @@ function getRequests(host, port) {
 
 
     })
+
+    req.write('{type:"next"}');
+
     req.end();
 }
 
@@ -56,4 +59,10 @@ for (var i = 0 ; i < categories.length ; i++) {
     })
 }
 
+function requests(req, res, params) {
+    
+}
+
 getRequests('localhost', 3333);
+
+module.exports = requests;

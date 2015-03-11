@@ -9,6 +9,8 @@ var logger     = require('http-request-logger');
 var level      = require('level');
 var JSONStream = require('JSONStream');
 
+var port   = parseInt(process.argv[2], 10);
+
 //open the request db
 var db            = level('./classified.db');
 var requestLogger = logger(db);
@@ -29,4 +31,4 @@ http.createServer(function(req, res) {
     var m = router.match(req.url);
     if (m) m.fn(req, res, m.params);
     else st(req, res);
-}).listen(3000);
+}).listen(port);
