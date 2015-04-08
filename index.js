@@ -152,7 +152,7 @@ for (var i = 0 ; i < categories.length ; i++) {
         if (request) {
             //console.log(el);
             request['clazz'] = e.target.innerHTML;
-            send({value:JSON.stringify(request)});
+            send(request);
         }
         if (cont) cont()
     })
