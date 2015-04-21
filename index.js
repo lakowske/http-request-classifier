@@ -6,9 +6,14 @@ var http       = require('http');
 var JSONStream = require('JSONStream');
 var through2    = require('through2');
 
+var name      = document.querySelector('#name');
+name.onchange = function() {
+    recv();
+}
+var inputHostField = document.querySelector('#inputHost');
+var inputPortField = document.querySelector('#inputPort');
 var sample    = document.querySelector('#req');
-var hostField = document.querySelector('#host');
-var portField = document.querySelector('#port');
+
 
 var cont   = null;
 var input  = null;
@@ -21,45 +26,38 @@ function dragleave(e, element) {
     element.classList.remove("dropover");
 }
 
-function getRequests(host, port) {
+function getRequests(host, port, user_id) {
     var options = {
         host : host,
         port : port,
-        path : '/requests',
+        path : '/users/' + user_id + '/unclassified',
         method : 'GET',
         withCredentials : false
     }
 
-    var parseify = JSONStream.parse();
-    var pauseify = through2(function(dbrequest, enc, fn) {
-        var self    = this;
-        var first   = false;
-        if (cont === null) {
-            first = true;
-        }
-
-        cont = function() {
-            console.log('next request');
-            queue(self, dbrequest, fn);
-        }
-
-        if (first) {
-            cont();
-        }
-    })
-
+    var result = ''
     var req = http.request(options, function(res) {
-        res.pipe(pauseify).pipe(parseify);
-        parseify.on('data', function(dbrequest) {
-            input = dbrequest;
-            //use trumpet template
-            sample.innerHTML = dbrequest.value;
+
+        res.on('data', function(data) {
+            result += data;
+        })
+
+        res.on('end', function() {
+            input = JSON.parse(result);
+            if (input.length <= 0) {
+                sample.innerHTML = "Finished"
+            } else {
+                //use trumpet template
+                sample.innerHTML = JSON.stringify(input[0]);
+            }
         })
 
     })
+
     req.on('error', function(err) {
         console.log(err);
     })
+
     req.on('data', function(data) {
         console.log('hi ' + data);
     })
@@ -68,46 +66,60 @@ function getRequests(host, port) {
 
 }
 
-var req = getRequests('localhost', 3333)
-req.end();
 
+function recv() {
+    var inputHost = inputHostField.value;
+    var inputPort = parseInt(inputPortField.value);
+    var username  = name.value;
 
+    var req = getRequests(inputHost, inputPort, username)
+    req.end();
+}
 
-function putRequests(host, port) {
+recv();
+
+Window._recv = recv;
+
+function putRequests(host, port, onEnd) {
     var options = {
         host : host,
         port : port,
-        path : '/requests',
+        path : '/classes',
         method : 'POST',
         withCredentials : false
     }
 
+    var result = '';
     var req = http.request(options, function(res) {
-        if (res.statusCode === 200) {
-            console.log('sall good man');
-        }
         res.on('data', function(data) {
-            console.log(data);
+            result += data;
         })
         res.on('end', function() {
-            console.log('put response received');
+            onEnd(result);
         })
     })
 
     return req;
 }
 
-function send(request) {
-    var time = new Date().getTime();
-    var host = hostField.value;
-    var port = parseInt(portField.value);
-    var req  = putRequests(host, port);
 
-    //Write it back to the server
-    req.write(JSON.stringify(request));
+function send(request, onSent) {
+    var time = new Date().getTime();
+    var host = inputHostField.value;
+    var port = parseInt(inputPortField.value);
+    var username = name.value;
+    var req  = putRequests(host, port, onSent);
+
+    //Write the class to the server
+    var serializedReq = JSON.stringify({
+        request_id:request.request_id,
+        user_id:username, clazz:request.clazz});
+    req.write(serializedReq);
 
     req.end();
 }
+
+Window._send = send;
 
 var samples = document.querySelectorAll('.sample');
 
@@ -152,8 +164,10 @@ for (var i = 0 ; i < categories.length ; i++) {
         if (request) {
             //console.log(el);
             request['clazz'] = e.target.innerHTML;
-            send(request);
+            send(request, function(result) {
+                console.log(result);
+                recv();
+            });
         }
-        if (cont) cont()
     })
 }
