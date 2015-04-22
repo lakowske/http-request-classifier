@@ -28,7 +28,6 @@
     "ecstatic": "^0.5.8",
     "http-methods": "^1.0.0",
     "http-request-logger": "git://github.com/lakowske/http-request-logger",
-    "level": "^0.18.0",
     "node-uuid": "^1.4.3",
     "pg": "^4.3.0",
     "routes": "^2.0.0",
