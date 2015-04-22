@@ -153,6 +153,9 @@ for (var i = 0 ; i < categories.length ; i++) {
     })
 
     el.addEventListener('drop', function(e) {
+        if (e.toElement) dragleave(e, e.toElement);
+        if (e.target) dragleave(e, e.target);
+        
         e.preventDefault();
         //console.log(e.target);
         //console.log(e.dataTransfer.getData('text/plain'));
