@@ -12,10 +12,8 @@ var pg            = require('pg');
 var JSONStream    = require('JSONStream');
 var queryParse    = require('querystring').parse;
 var url           = require('url');
-
-var port       = parseInt(process.argv[2], 10);
-var user       = process.env['USER'];
-var connection = 'postgres://'+user+'@localhost/request';
+var fs            = require('fs');
+var path          = require('path');
 
 //open the request db
 function connectOrFail(callback) {
@@ -139,6 +137,23 @@ function onConnection() {
         else st(req, res);
     }).listen(port);
 
+}
+
+try {
+    var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
+} catch (error) {
+    console.log(error);
+    console.log('Problem loading configuration.');
+    process.exit(-1);
+}
+
+var port       = parseInt(process.argv[2], 10);
+var user = process.env['USER'];
+if (config.user) user = config.user;
+
+var connection = 'postgres://'+user+'@localhost/request';
+if (config.pass) {
+    connection = 'postgres://'+user+':'+config.pass+'@localhost/request';
 }
 
 connectOrFail(onConnection);

@@ -10,8 +10,6 @@ var name      = document.querySelector('#name');
 name.onchange = function() {
     recv();
 }
-var inputHostField = document.querySelector('#inputHost');
-var inputPortField = document.querySelector('#inputPort');
 var sample    = document.querySelector('#req');
 
 
@@ -26,10 +24,8 @@ function dragleave(e, element) {
     element.classList.remove("dropover");
 }
 
-function getRequests(host, port, user_id) {
+function getRequests(user_id) {
     var options = {
-        host : host,
-        port : port,
         path : '/users/' + user_id + '/unclassified',
         method : 'GET',
         withCredentials : false
@@ -68,11 +64,8 @@ function getRequests(host, port, user_id) {
 
 
 function recv() {
-    var inputHost = inputHostField.value;
-    var inputPort = parseInt(inputPortField.value);
     var username  = name.value;
-
-    var req = getRequests(inputHost, inputPort, username)
+    var req = getRequests(username)
     req.end();
 }
 
@@ -80,10 +73,8 @@ recv();
 
 Window._recv = recv;
 
-function putRequests(host, port, onEnd) {
+function putRequests(onEnd) {
     var options = {
-        host : host,
-        port : port,
         path : '/classes',
         method : 'POST',
         withCredentials : false
@@ -105,10 +96,8 @@ function putRequests(host, port, onEnd) {
 
 function send(request, onSent) {
     var time = new Date().getTime();
-    var host = inputHostField.value;
-    var port = parseInt(inputPortField.value);
     var username = name.value;
-    var req  = putRequests(host, port, onSent);
+    var req  = putRequests(onSent);
 
     //Write the class to the server
     var serializedReq = JSON.stringify({
