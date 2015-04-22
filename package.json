@@ -29,6 +29,7 @@
     "http-methods": "^1.0.0",
     "node-uuid": "^1.4.3",
     "pg": "^4.3.0",
+    "pg-http-request-classifier": "git+ssh://git@github.com:lakowske/pg-http-request-classifier.git",
     "routes": "^2.0.0",
     "through": "^2.3.6",
     "through2": "^0.6.3"
