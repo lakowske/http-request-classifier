@@ -2,7 +2,8 @@
  * (C) 2015 Seth Lakowske
  */
 
-var http = require('http');
+var http       = require('http');
+var JSONStream = require('JSONStream');
 
 /*
  * requests unclassified requests
@@ -34,6 +35,23 @@ function unclassified(options, user_id, callback) {
 
 }
 
+function classified(options, writeStream) {
+    options.path            = '/classes';
+    options.method          = 'GET';
+
+    var parseify   = JSONStream.parse();
+
+    var req = http.request(options, function(res) {
+        res.pipe(parseify).pipe(writeStream);
+    })
+
+    req.on('error', function(err) {
+        console.log(err);
+    })
+
+    return req;
+
+}
 
 function recv(options, callback) {
     var req = unclassified(options, options.username, callback);
@@ -74,3 +92,4 @@ function send(options, request, onSent) {
 
 module.exports.recv = recv;
 module.exports.send = send;
+module.exports.classified = classified;

@@ -90,10 +90,7 @@ function onConnection() {
             connectOrError(res, function(client, done) {
                 var query = 'select r.*, c.class from requests r, classes c where c.request_id = r.request_id';
                 client.query(query, function(err, results) {
-                    for (var i = 0 ; i < results.rows.length ; i++) {
-                        res.write(JSON.stringify(results.rows[i]));
-                    }
-                    res.end();
+                    res.end(JSON.stringify(results.rows));
                 })
             })
         }
