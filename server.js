@@ -84,8 +84,19 @@ function onConnection() {
                     pgReqClassify.insertClass(client, clazz, response);
                 })
             })
-        }
+        },
 
+        GET: function(req, res, params, cb) {
+            connectOrError(res, function(client, done) {
+                var query = 'select r.*, c.class from requests r, classes c where c.request_id = r.request_id';
+                client.query(query, function(err, results) {
+                    for (var i = 0 ; i < results.rows.length ; i++) {
+                        res.write(JSON.stringify(results.rows[i]));
+                    }
+                    res.end();
+                })
+            })
+        }
     }))
 
     router.addRoute('/users/:user_id/unclassified*?', function(req,res,params) {
@@ -143,16 +154,15 @@ try {
     var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json')));
 } catch (error) {
     console.log(error);
-    console.log('Problem loading configuration.');
-    process.exit(-1);
+    console.log("Couldn't loading configuration.");
 }
 
 var port       = parseInt(process.argv[2], 10);
 var user = process.env['USER'];
-if (config.user) user = config.user;
+if (config && config.user) user = config.user;
 
 var connection = 'postgres://'+user+'@localhost/request';
-if (config.pass) {
+if (config && config.pass) {
     connection = 'postgres://'+user+':'+config.pass+'@localhost/request';
 }
 
