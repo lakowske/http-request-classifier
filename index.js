@@ -10,12 +10,17 @@ var classes     = require('./classes');
 var recv = classes.recv;
 var send = classes.send;
 
+var currentReq = null;
 function displayReq(requests) {
+
     if (requests.length <= 0) {
         sample.innerHTML = "Finished"
     } else {
         //use trumpet template
-        sample.innerHTML = JSON.stringify(requests[0]);
+        var r = requests[0];
+        currentReq = r;
+        var displayText = r.method + ' ' + r.url + '<br>' + r.user_agent + '<br>' + r.cookie + '<br>' + r.remoteaddress;
+        sample.innerHTML = displayText;
     }
 }
 
@@ -70,7 +75,7 @@ for (var i = 0 ; i < categories.length ; i++) {
         if (e.target) dragleave(e, e.target);
         e.preventDefault();
         try {
-            var request = JSON.parse(sample.innerHTML);
+            var request = currentReq;
         } catch (err) {
             console.log('error making a JSON object');
         }

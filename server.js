@@ -81,7 +81,13 @@ function onConnection() {
                 var parseify = JSONStream.parse();
                 req.pipe(parseify);
                 parseify.on('data', function(clazz) {
-                    pgReqClassify.insertClass(client, clazz, response);
+                    if (clazz instanceof Array) {
+                        for (var i = 0 ; i < clazz.length ; i++) {
+                            pgReqClassify.insertClass(client, clazz[i], response);
+                        }
+                    } else {
+                        pgReqClassify.insertClass(client, clazz, response);
+                    }
                 })
             })
         },
