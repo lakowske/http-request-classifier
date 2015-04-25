@@ -94,7 +94,7 @@ function onConnection() {
 
         GET: function(req, res, params, cb) {
             connectOrError(res, function(client, done) {
-                var query = 'select r.*, c.class from requests r, classes c where c.request_id = r.request_id';
+                var query = 'select r.*, c.clazz from requests r, classes c where c.request_id = r.request_id';
                 client.query(query, function(err, results) {
                     res.end(JSON.stringify(results.rows));
                 })
