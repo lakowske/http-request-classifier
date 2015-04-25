@@ -90,18 +90,18 @@ function onConnection() {
                     }
                 })
             })
-        },
-
-        GET: function(req, res, params, cb) {
-            connectOrError(res, function(client, done) {
-                var query = 'select r.*, c.clazz from requests r, classes c where c.request_id = r.request_id';
-                client.query(query, function(err, results) {
-                    res.end(JSON.stringify(results.rows));
-                })
-            })
         }
+
     }))
 
+    router.addRoute('/users/:user_id/classes', function(req, res, params) {
+        connectOrError(res, function(client, done) {
+            var query = 'select r.*, c.clazz from requests r, classes c where c.request_id = r.request_id and c.user_id=$1';
+            client.query(query, [params.user_id],function(err, results) {
+                res.end(JSON.stringify(results.rows));
+            })
+        })
+    })
     router.addRoute('/users/:user_id/unclassified*?', function(req,res,params) {
 
         var count = queryParse(url.parse(req.url).query).count;
