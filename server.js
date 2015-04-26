@@ -153,7 +153,6 @@ function onConnection() {
                     if (clazz instanceof Array) {
                         for (var i = 0 ; i<clazz.length ; i++) {
                             var c = clazz[i];
-                            console.log(c);
                             pgReqLogger.expand(c);
                             if (i < clazz.length - 1) {
                                 pgReqLogger.insertRequest(client, c, arrayResponse);
@@ -163,7 +162,6 @@ function onConnection() {
                         }
                     } else {
                         pgReqLogger.expand(clazz);
-                        console.log(clazz);
                         pgReqLogger.insertRequest(client, clazz, response);
                     }
 
