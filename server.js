@@ -139,6 +139,8 @@ function onConnection() {
                 var parseify = JSONStream.parse();
                 req.pipe(parseify);
                 parseify.on('data', function(clazz) {
+                    pgReqLogger.expand(clazz);
+                    console.log(clazz);
                     pgReqLogger.insertRequest(client, clazz, response);
                 })
             })
