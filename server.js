@@ -136,12 +136,37 @@ function onConnection() {
                     done();
                 }
 
+                function arrayResponse(err, result, request_id) {
+                    if (err) {
+                        res.write(JSON.stringify(err))
+                    }
+
+                    if (result) {
+                        res.write(JSON.stringify({request_id:request_id}));
+                    }
+
+                }
+
                 var parseify = JSONStream.parse();
                 req.pipe(parseify);
                 parseify.on('data', function(clazz) {
-                    pgReqLogger.expand(clazz);
-                    console.log(clazz);
-                    pgReqLogger.insertRequest(client, clazz, response);
+                    if (clazz instanceof Array) {
+                        for (var i = 0 ; i<clazz.length ; i++) {
+                            var c = clazz[i];
+                            console.log(c);
+                            pgReqLogger.expand(c);
+                            if (i < clazz.length - 1) {
+                                pgReqLogger.insertRequest(client, c, arrayResponse);
+                            } else {
+                                pgReqLogger.insertRequest(client, c, response);
+                            }
+                        }
+                    } else {
+                        pgReqLogger.expand(clazz);
+                        console.log(clazz);
+                        pgReqLogger.insertRequest(client, clazz, response);
+                    }
+
                 })
             })
         }
