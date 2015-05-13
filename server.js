@@ -171,6 +171,7 @@ function onConnection() {
     }))
 
     http.createServer(function(req, res) {
+
         var m = router.match(req.url);
         if (m) m.fn(req, res, m.params, function() {console.log('served')});
         else st(req, res);

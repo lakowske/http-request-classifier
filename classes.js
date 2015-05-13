@@ -71,7 +71,7 @@ function putRequests(options, onEnd) {
             result += data;
         })
         res.on('end', function() {
-            onEnd(result);
+            if (onEnd) onEnd(result);
         })
     })
 
