@@ -190,9 +190,9 @@ var port       = parseInt(process.argv[2], 10);
 var user = process.env['USER'];
 if (config && config.user) user = config.user;
 
-var connection = 'postgres://'+user+'@localhost/request';
+var connection = 'postgres://'+user+'@db/request';
 if (config && config.pass) {
-    connection = 'postgres://'+user+':'+config.pass+'@localhost/request';
+    connection = 'postgres://'+user+':'+config.pass+'@db/request';
 }
 
 connectOrFail(onConnection);
