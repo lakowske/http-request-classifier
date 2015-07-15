@@ -69,7 +69,7 @@ function suggest(requests) {
     if (requests.length <= 0) {
         console.log('nothing to help with')
     } else {
-        var req = robots.classify({host:'localhost', port:'4466'}, displaySuggestion);
+        var req = robots.classify({host:window.location.hostname, port:'4466'}, displaySuggestion);
         req.write(JSON.stringify(requests));
         req.end();
     }
